@@ -6,6 +6,17 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+Vue.use(router)
+
+// 引入资源请求插件
+import VueResource from 'vue-resource'
+// 使用VueResource插件
+Vue.use(VueResource)
+
+// 全局配置数据请求根路径
+Vue.http.options.root = 'http://localhost:8080'
+Vue.http.options.emulateJSON = true
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
