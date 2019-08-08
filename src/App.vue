@@ -26,7 +26,6 @@ export default{
       this.$http.get('/api/seller').then(result => {
         if(result.body.errno === 0){
           this.seller = result.body.data
-          console.log(result.body.data)
         }else{
           console.log("erro")
         }

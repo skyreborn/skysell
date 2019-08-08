@@ -2,16 +2,17 @@
 <div class="goods">
 	<div class="menu-wrapper" ref="menuWrapper">
 		<ul>
-			<li v-for="item in goods" class="menu-item">
+			<li v-for="(item,index) in goods" class="menu-item" :class="{'current':currentIndex===index}" 
+			@click="selectMenu(index, $event)">
 				<span class="text border-1px">
 					<span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>{{ item.name }}
 				</span>
 			</li>
 		</ul>
 	</div>
-	<div class="foods-wrapper">
+	<div class="foods-wrapper" ref="foodWrapper">
 		<ul>
-			<li v-for="item in goods" class="food-list">
+			<li v-for="item in goods" class="food-list food-list-hook">
 				<h1 class="title">{{ item.name }}</h1>
 				<ul>
 					<li v-for="food in item.foods" class="food-item border-1px">
@@ -48,7 +49,21 @@
 		},
 		data() {
 			return {
-				goods: []
+				goods: [], //商品信息
+				listHeight: [], //存储高度的数组
+				scrollY: 0
+			}
+		},
+		computed: {
+			currentIndex() {//滚动右侧商品，左侧相应栏目导航栏高亮
+				for(let i= 0; i < this.listHeight.length; i++) {
+					let height1 = this.listHeight[i]
+					let height2 = this.listHeight[i+1]
+					if(!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
+						return i
+					}
+				}
+				return 0
 			}
 		},
 		created() {
@@ -56,18 +71,51 @@
 			this.getGoods()
 		},
 		methods: {
+			selectMenu(index, event) {//点击左侧导航栏右侧滚动到相应栏目商品
+				if(!event._constructed) {
+					return
+				}
+				let foodList = this.$refs.foodWrapper.getElementsByClassName('food-list-hook')
+				let el = foodList[index]
+				this.foodsScroll.scrollToElement(el,300)
+				console.log(index)
+			},
 			getGoods() {
 				this.$http.get('/api/goods').then(result => {
 					if(result.body.errno === 0){
 						this.goods = result.body.data
-						console.log(this.goods)
+						this.$nextTick(() => {
+							this._initScroll()
+							this._calculateHeight()
+						})
 					}else {
 						console.log("erro")
 					}
 				})
 			},
-			_initScroll() {
-				this.meunScroll = new BScroll(this.$refs.menuWrapper, {})
+			_initScroll() {//初始化左右滚动
+				this.meunScroll = new BScroll(this.$refs.menuWrapper, {
+					click: true
+				})
+
+				this.foodsScroll = new BScroll(this.$refs.foodWrapper, {
+					probeType: 3
+				})
+
+				this.foodsScroll.on('scroll', (pos)=> {
+					this.scrollY = Math.abs(Math.round(pos.y))
+				})
+			},
+			_calculateHeight() {//计算高度
+				let foodList = this.$refs.foodWrapper.getElementsByClassName('food-list-hook')
+				let height = 0
+				this.listHeight.push(height)
+				for(let i = 0; i < foodList.length; i++) {
+					let item = foodList[i]
+					height += item.clientHeight
+					this.listHeight.push(height)
+				}
+				console.log(this.listHeight)
 			}
 		}
 	}
@@ -93,6 +141,14 @@
 				width: 56px
 				padding: 0 12px
 				line-height: 14px
+				&.current
+					position: relative
+					z-index 10
+					margin-top: -1px
+					background: #fff
+					font-weight: 700
+					.text
+						border-none()
 				.icon
 					display: inline-block
 					vertical-align: top
@@ -151,9 +207,10 @@
 						font-size: 10px
 						color: rgb(147,153,159)
 					.desc
+						line-height: 12px
 						margin-bottom: 8px
 					.extra
-						&.count
+						.count
 							margin-right: 12px
 					.price
 						font-weight: 700
@@ -166,5 +223,4 @@
 							text-decoration:line-through
 							font-size: 10px
 							color: rgb(147,153,159)
-
 </style>
