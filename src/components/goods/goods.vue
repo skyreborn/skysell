@@ -30,17 +30,24 @@
 								<span class="now">¥{{ food.price }}</span>
 								<span class="old" v-show="food.oldPrice">¥{{ food.oldPrice }}</span>
 							</div>
+							<div class="cartcontrol-wrapper">
+								<carcontrol :food="food"></carcontrol>
+							</div>
 						</div>
+
 					</li>
 				</ul>
 			</li>
 		</ul>
 	</div>
+	<shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
 </div>
 </template>
 
 <script type="text/ecmascript-6">
 	import BScroll from 'better-scroll'
+	import shopcart from '@/components/shopcart/shopcart'
+	import carcontrol from '@/components/cartcontrol/cartcontrol'
 	export default {
 		props: {
 			seller: {
@@ -64,6 +71,17 @@
 					}
 				}
 				return 0
+			},
+			selectFoods() {
+				let foods = []
+				this.goods.forEach((good) => {
+					good.foods.forEach((food) => {
+						if(food.count) {
+							foods.push(food)
+						}
+					})
+				})
+				return foods
 			}
 		},
 		created() {
@@ -72,13 +90,12 @@
 		},
 		methods: {
 			selectMenu(index, event) {//点击左侧导航栏右侧滚动到相应栏目商品
-				if(!event._constructed) {
+				if(!event._constructed) {//阻止pc端点击两次
 					return
 				}
 				let foodList = this.$refs.foodWrapper.getElementsByClassName('food-list-hook')
 				let el = foodList[index]
 				this.foodsScroll.scrollToElement(el,300)
-				console.log(index)
 			},
 			getGoods() {
 				this.$http.get('/api/goods').then(result => {
@@ -99,6 +116,7 @@
 				})
 
 				this.foodsScroll = new BScroll(this.$refs.foodWrapper, {
+					click: true ,
 					probeType: 3
 				})
 
@@ -115,8 +133,11 @@
 					height += item.clientHeight
 					this.listHeight.push(height)
 				}
-				console.log(this.listHeight)
 			}
+		},
+		components: {
+			shopcart,
+			carcontrol
 		}
 	}
 </script>
@@ -223,4 +244,8 @@
 							text-decoration:line-through
 							font-size: 10px
 							color: rgb(147,153,159)
+					.cartcontrol-wrapper
+						position: absolute
+						right: 0
+						bottom: 12px
 </style>
