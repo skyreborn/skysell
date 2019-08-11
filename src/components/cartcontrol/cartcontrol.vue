@@ -11,6 +11,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+	const EVENT_ADD = 'add'
 	import Vue from 'vue'
 	export default {
 		props: {
@@ -30,6 +31,7 @@
 				}else {
 					this.food.count++
 				}
+				this.$emit(EVENT_ADD, event.target)
 			},
 			decrease(event) {
 				if(!event._constructed){//如果不存在这个属性,则为原生点击事件，不执行下面的函数
