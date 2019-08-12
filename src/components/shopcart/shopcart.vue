@@ -44,7 +44,7 @@
 									<span>¥{{ food.price*food.count }}</span>
 								</div>
 								<div class="cartcontrol-wrapper">
-									<carcontrol :food="food"></carcontrol>
+									<carcontrol @add="onAdd" :food="food"></carcontrol>
 								</div>
 							</li>
 						</ul>
@@ -204,6 +204,9 @@
 					return
 				}
 				window.alert(`支付${this.totalPrice}元`)
+			},
+			onAdd(target) {
+				this.drop(target)
 			}
 		},
 		components: {
