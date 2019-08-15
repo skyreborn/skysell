@@ -15,6 +15,14 @@ import VueResource from 'vue-resource'
 // 使用VueResource插件
 Vue.use(VueResource)
 
+//导入时间处理插件
+import moment from "moment"
+
+//定义全局过滤器
+Vue.filter('formatDate', function(time, pattern = "YYYY-MM-DD HH:mm"){
+	return moment(time).format(pattern)
+})
+
 // 全局配置数据请求根路径
 Vue.http.options.root = 'http://localhost:8080'
 Vue.http.options.emulateJSON = true

@@ -32,8 +32,34 @@
 				<split></split>
 				<div class="rating">
 					<h1 class="title">商品评价</h1>
-					<ratingselect @only="changeOnlyContent" @change="changeType" :select-type="selectType" :only-content="onlyContent"
-					:desc="desc" :ratings="food.ratings"></ratingselect>
+					<ratingselect
+					@only="changeOnlyContent"
+					@change="changeType"
+					:select-type="selectType"
+					:only-content="onlyContent"
+					:desc="desc"
+					:ratings="food.ratings">
+					</ratingselect>
+					<div class="rating-wrapper">
+						<ul v-show="food.ratings && food.ratings.length">
+							<li v-show="needShow(rating.rateType,rating.text)" v-for="rating in food.ratings"
+							class="rating-item border-1px">
+								<div class="user">
+									<span class="name">{{ rating.username }}</span>
+									<img class="avatar" width="12" height="12" :src="rating.avatar">
+								</div>
+								<div class="time">{{ rating.rateTime | formatDate}}</div>
+								<p class="text">
+									<span :class="{'icon-thumb_up':rating.rateType===0,'icon-thumb_down':rating.rateType===1}">
+									</span>
+									{{ rating.text }}
+								</p>
+							</li>
+						</ul>
+						<div class="no-rating" v-show="!food.ratings || !food.ratings.length">
+							暂无评价
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -103,8 +129,18 @@
 			changeType(type) {//传递给子组件ratingselect点击切换评论类型的方法
 				this.selectType = type
 			},
-			changeOnlyContent() {//传递给子组件ratingselect切换是否值看有内容评论的方法
+			changeOnlyContent() {//传递给子组件ratingselect切换是否只看有内容评论的方法
 				this.onlyContent = !this.onlyContent
+			},
+			needShow(type,text) {
+				if(this.onlyContent && !text) {//判断是否只显示有内容的评论
+					return false
+				}
+				if(this.selectType === ALL) {//选中全部直接全部显示
+					return true
+				}else {//推荐或吐槽
+					return type === this.selectType
+				}
 			}
 		},
 		components: {
@@ -116,6 +152,7 @@
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
+@import "../../common/stylus/mixin.styl"
 	.food
 		position: fixed
 		left: 0
@@ -220,5 +257,46 @@
 				margin-left: 18px
 				font-size: 14px
 				color: rgb(7,17,27)
+			.rating-wrapper
+				padding: 0 18px
+				.rating-item
+					position: relative
+					padding: 16px 0
+					border-1px(rgba(7,17,27,0.1))
+					.user
+						position: absolute
+						right: 0
+						top: 16px
+						line-height: 12px
+						font-size: 0
+						.name
+							display: inline-block
+							margin-right: 6px
+							vertical-align: top
+							font-size: 10px
+							color: rgb(147,153,159)
+						.avatar
+							border-radius: 50%
+					.time
+						margin-bottom: 6px
+						line-height: 12px
+						font-size: 10px
+						color: rgb(147,153,159)
+					.text
+						line-height: 16px
+						font-size: 12px
+						color: rgb(7,17,27)
+						.icon-thumb_up, .icon-thumb_down
+							margin-right: 4px
+							line-height: 16px
+							font-size: 12px
+						.icon-thumb_up
+							color: rgb(0,160,220)
+						.icon-thumb_down
+							color: rgb(147,153,159)
+				.no-rating
+					padding: 16px 0
+					font-size: 12px
+					color: rgb(147,153,159)
 
 </style>
