@@ -35,7 +35,6 @@
 									<carcontrol @add="onAdd" :food="food"></carcontrol>
 								</div>
 							</div>
-
 						</li>
 					</ul>
 				</li>
@@ -152,8 +151,7 @@
 					return
 				}
 				this.selectedFood = food
-				this.$refs.food.show()
-				console.log(this.selectedFood)
+				this.$refs.food.show() //通过ref获得food组件dom对象调用show方法
 			}
 		},
 		components: {
